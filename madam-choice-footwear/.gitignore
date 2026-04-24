@@ -1,0 +1,20 @@
+# Python virtual environment — never commit this
+venv/
+.venv/
+env/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database — contains real customer data
+database.db
+
+# Secret keys — never commit this
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
