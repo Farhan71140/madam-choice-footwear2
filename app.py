@@ -3,7 +3,6 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import smtplib
-import ssl
 from email.message import EmailMessage
 from sqlmodel import SQLModel, Field, Session, create_engine, select
 from datetime import datetime
@@ -39,19 +38,14 @@ templates = Jinja2Templates(directory="templates")
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///database.db")
 
 if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+pg8000://", 1)
-elif DATABASE_URL.startswith("postgresql://"):
-    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+pg8000://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-if "pg8000" in DATABASE_URL:
-    ssl_context = ssl.create_default_context()
-    ssl_context.check_hostname = False
-    ssl_context.verify_mode = ssl.CERT_NONE
+if DATABASE_URL.startswith("postgresql://"):
     engine = create_engine(
         DATABASE_URL,
         echo=False,
         pool_pre_ping=True,
-        connect_args={"ssl_context": ssl_context}
+        connect_args={"sslmode": "require"}
     )
 else:
     engine = create_engine(DATABASE_URL, echo=False)
