@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  .policy-page {
+    background: #00c6ff;
+    min-height: 100vh;
+    padding: 60px 0 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .policy-page::before {
+    content: ''; position: absolute;
+    width: 400px; height: 400px;
+    background: rgba(255,255,255,0.1); border-radius: 50%;
+    top: -150px; right: -150px;
+  }
+  .policy-container {
+    max-width: 800px; margin: 0 auto;
+    position: relative; z-index: 1; padding: 0 20px;
+  }
+  .policy-card {
+    background: white; border-radius: 20px; padding: 50px;
+    box-shadow: 0 10px 40px rgba(0,114,255,0.2);
+  }
+  .policy-card h1 {
+    font-size: 2rem; font-weight: 800; color: #004080;
+    margin-bottom: 5px;
+  }
+  .policy-card .last-updated {
+    font-size: 0.85rem; color: #999; margin-bottom: 35px;
+    padding-bottom: 20px; border-bottom: 2px solid #f0f0f0;
+  }
+  .policy-section { margin-bottom: 30px; }
+  .policy-section h3 {
+    font-size: 1.1rem; font-weight: 700; color: #004080;
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .policy-section p {
+    font-size: 0.95rem; color: #555; line-height: 1.8; margin: 0;
+  }
+  .policy-divider {
+    border: none; border-top: 1px solid #f0f0f0; margin: 25px 0;
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #004080; font-weight: 700; text-decoration: none;
+    margin-bottom: 25px; font-size: 0.95rem;
+    background: rgba(255,255,255,0.8); padding: 8px 18px; border-radius: 50px;
+  }
+  @media (max-width: 600px) {
+    .policy-card { padding: 30px 20px; }
+    .policy-card h1 { font-size: 1.5rem; }
+  }
+</style>
+
+<div class="policy-page">
+  <div class="policy-container">
+    <a href="/" class="back-link">← Back to Home</a>
+
+    <div class="policy-card">
+      <h1>🔒 Privacy Policy</h1>
+      <p class="last-updated">Last updated: January 2025</p>
+
+      <div class="policy-section">
+        <h3>📋 Information We Collect</h3>
+        <p>We only collect personal information that you voluntarily provide to us — such as your name, phone number, and address when placing an order via WhatsApp or our contact form.</p>
+      </div>
+      <hr class="policy-divider">
+
+      <div class="policy-section">
+        <h3>🎯 How We Use Your Information</h3>
+        <p>Any information you share is used solely for order fulfillment, delivery coordination, and customer support. We do not use your data for marketing without your consent.</p>
+      </div>
+      <hr class="policy-divider">
+
+      <div class="policy-section">
+        <h3>🔐 Data Security</h3>
+        <p>We take reasonable steps to protect your personal information. Your data is never sold, rented, or shared with third parties outside of what is necessary to complete your order.</p>
+      </div>
+      <hr class="policy-divider">
+
+      <div class="policy-section">
+        <h3>🍪 Cookies</h3>
+        <p>Our website uses minimal cookies to ensure basic functionality such as your shopping cart. We do not use tracking or advertising cookies.</p>
+      </div>
+      <hr class="policy-divider">
+
+      <div class="policy-section">
+        <h3>📞 Contact Us</h3>
+        <p>If you have any questions about our privacy practices, please contact us at <strong>9133028638</strong> or via <a href="mailto:farhanuddin0516@gmail.com" style="color:#0072ff;">farhanuddin0516@gmail.com</a>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

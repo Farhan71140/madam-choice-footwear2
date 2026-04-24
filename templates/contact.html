@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(3deg); }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .contact-section {
+    background: #00c6ff; min-height: 100vh; padding: 80px 0;
+    position: relative; overflow: hidden;
+  }
+  .contact-section::before {
+    content: ''; position: absolute; width: 400px; height: 400px;
+    background: rgba(255,255,255,0.1); border-radius: 50%;
+    top: -150px; right: -150px; animation: float 8s ease-in-out infinite; z-index: 0;
+  }
+  .contact-section::after {
+    content: ''; position: absolute; width: 300px; height: 300px;
+    background: rgba(255,255,255,0.08); border-radius: 50%;
+    bottom: -100px; left: -100px; animation: float 6s ease-in-out infinite reverse; z-index: 0;
+  }
+
+  .contact-container { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+
+  .contact-heading {
+    font-size: 3rem; font-weight: 800; color: #000;
+    text-align: center; margin-bottom: 3rem;
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  .alert-success-custom {
+    background: linear-gradient(135deg, #00c851, #007E33);
+    color: white; padding: 20px; border-radius: 15px;
+    margin-bottom: 30px; text-align: center; font-size: 1.1rem;
+    box-shadow: 0 8px 25px rgba(0,200,81,0.3); animation: fadeInUp 0.8s ease-out;
+  }
+
+  .contact-info-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px; margin-bottom: 40px;
+  }
+  .contact-info-card {
+    background: rgba(255,255,255,0.95); border-radius: 20px; padding: 35px;
+    text-align: center; box-shadow: 0 10px 40px rgba(0,114,255,0.2);
+    transition: all 0.3s ease; animation: fadeInUp 0.8s ease-out;
+  }
+  .contact-info-card:hover { transform: translateY(-10px); box-shadow: 0 15px 50px rgba(0,114,255,0.3); }
+  .contact-icon { font-size: 3rem; margin-bottom: 15px; display: inline-block; animation: pulse 2s ease-in-out infinite; }
+  .contact-info-card h4 { font-size: 1.3rem; font-weight: 700; color: #000; margin-bottom: 15px; }
+  .contact-info-card p { font-size: 1.1rem; color: #2d3748; margin: 0; line-height: 1.6; }
+  .contact-info-card a { color: #0072ff; text-decoration: none; font-weight: 600; }
+  .contact-info-card a:hover { color: #004080; text-decoration: underline; }
+
+  .contact-form-card {
+    background: rgba(255,255,255,0.95); border-radius: 20px; padding: 40px;
+    box-shadow: 0 10px 40px rgba(0,114,255,0.2); animation: fadeInUp 0.8s ease-out 0.6s backwards;
+  }
+  .contact-form-card h3 { font-size: 1.8rem; font-weight: 700; color: #000; margin-bottom: 25px; text-align: center; }
+
+  .form-group { margin-bottom: 25px; }
+  .form-label-contact { font-size: 1rem; font-weight: 600; color: #000; margin-bottom: 8px; display: block; }
+  .form-control-contact {
+    width: 100%; padding: 15px; border: 2px solid #e2e8f0;
+    border-radius: 10px; font-size: 1rem; transition: all 0.3s ease; background: white;
+  }
+  .form-control-contact:focus {
+    border-color: #0072ff; outline: none;
+    box-shadow: 0 0 0 3px rgba(0,114,255,0.1);
+  }
+  textarea.form-control-contact { min-height: 150px; resize: vertical; }
+
+  .btn-submit-contact {
+    background: linear-gradient(135deg, #004080, #0066cc);
+    color: white; border: none; padding: 15px 40px;
+    font-size: 1.1rem; font-weight: 600; border-radius: 50px;
+    cursor: pointer; transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0,64,128,0.4);
+    display: inline-flex; align-items: center; gap: 10px;
+    margin: 10px; text-decoration: none;
+  }
+  .btn-submit-contact:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 30px rgba(0,64,128,0.6);
+    color: white;
+  }
+  .btn-whatsapp-contact {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    box-shadow: 0 5px 20px rgba(37,211,102,0.4);
+  }
+  .btn-whatsapp-contact:hover {
+    background: linear-gradient(135deg, #128C7E, #075E54);
+    box-shadow: 0 8px 30px rgba(37,211,102,0.6);
+    color: white;
+  }
+
+  .button-group {
+    display: flex; justify-content: center;
+    flex-wrap: wrap; gap: 10px; margin-top: 20px;
+  }
+
+  .additional-info {
+    background: rgba(255,255,255,0.95); border-radius: 20px; padding: 30px;
+    margin-top: 40px; text-align: center;
+    box-shadow: 0 10px 40px rgba(0,114,255,0.2);
+    animation: fadeInUp 0.8s ease-out 0.8s backwards;
+  }
+  .additional-info h4 { font-size: 1.5rem; font-weight: 700; color: #000; margin-bottom: 15px; }
+  .additional-info p { font-size: 1.1rem; color: #2d3748; line-height: 1.8; }
+
+  @media (max-width: 768px) {
+    .contact-heading { font-size: 2rem; }
+    .contact-info-grid { grid-template-columns: 1fr; }
+    .contact-form-card { padding: 25px; }
+    .btn-submit-contact { width: 100%; justify-content: center; }
+    .button-group { flex-direction: column; }
+  }
+</style>
+
+<div class="contact-section">
+  <div class="container contact-container">
+
+    <a href="/" style="display:inline-flex; align-items:center; gap:6px; color:#004080; font-weight:700; text-decoration:none; margin-bottom:25px; font-size:0.95rem; background:rgba(255,255,255,0.8); padding:8px 18px; border-radius:50px;">
+      ← Back to Home
+    </a>
+
+    <h2 class="contact-heading">Contact Us</h2>
+
+    <!-- Contact Info Cards -->
+    <div class="contact-info-grid">
+      <div class="contact-info-card">
+        <div class="contact-icon">📞</div>
+        <h4>Call Us</h4>
+        <p><a href="tel:9133028638">9133028638</a> / <a href="tel:9395550002">9395550002</a></p>
+      </div>
+      <div class="contact-info-card">
+        <div class="contact-icon">✉️</div>
+        <h4>Email Us</h4>
+        <p><a href="mailto:farhanuddin0516@gmail.com">farhanuddin0516@gmail.com</a></p>
+      </div>
+      <div class="contact-info-card">
+        <div class="contact-icon">📍</div>
+        <h4>Visit Us</h4>
+        <p># B-13, Palika Bazar, Station Road,<br>Secunderabad – 500 003</p>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    {% if success %}
+    <div class="alert-success-custom">
+      <strong>✅ Message Sent!</strong> Thank you! We'll get back to you soon.
+    </div>
+    {% endif %}
+
+    <!-- Contact Form -->
+    <div class="contact-form-card">
+      <h3>Send Us a Message</h3>
+      <form method="POST" action="/contact" id="contactForm">
+        <div class="form-group">
+          <label for="name" class="form-label-contact">📝 Name</label>
+          <input type="text" name="name" id="name" class="form-control-contact" placeholder="Enter your name" required>
+        </div>
+        <div class="form-group">
+          <label for="email" class="form-label-contact">📧 Email</label>
+          <input type="email" name="email" id="email" class="form-control-contact" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="message" class="form-label-contact">💬 Message</label>
+          <textarea name="message" id="message" class="form-control-contact" placeholder="Write your message here..." required></textarea>
+        </div>
+        <div class="button-group">
+          <!-- ✅ Send — submits form to backend, sends email via Gmail -->
+          <button type="submit" class="btn-submit-contact">
+            <span>📤</span> Send
+          </button>
+          <!-- ✅ Email directly — opens user's email app with message pre-filled -->
+          <button type="button" class="btn-submit-contact" onclick="emailDirectly()">
+            <span>✉️</span> Email directly
+          </button>
+          <!-- ✅ WhatsApp — opens WhatsApp with message pre-filled -->
+          <button type="button" class="btn-submit-contact btn-whatsapp-contact" onclick="sendWhatsApp()">
+            <span>💬</span> WhatsApp
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Business Hours -->
+    <div class="additional-info">
+      <h4>🕒 Business Hours</h4>
+      <p><strong>Open Daily:</strong> 10:00 AM – 9:00 PM<br>
+      Visit our store for a personalized shopping experience!</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ✅ Email directly — opens Gmail compose in browser (no email app needed)
+  function emailDirectly() {
+    const name    = document.getElementById('name').value.trim();
+    const email   = document.getElementById('email').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    if (!name || !email || !message) {
+      showContactToast('Please fill in all fields first.', 'error');
+      return;
+    }
+
+    const subject = encodeURIComponent(`Contact from ${name} - Madam Choice`);
+    const body    = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+    // ✅ Opens Gmail compose directly in browser — works without Outlook or any email app
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=farhanuddin0516@gmail.com&su=${subject}&body=${body}`, '_blank');
+  }
+
+  // ✅ WhatsApp — opens WhatsApp with message pre-filled
+  function sendWhatsApp() {
+    const name    = document.getElementById('name').value.trim();
+    const email   = document.getElementById('email').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    if (!name || !email || !message) {
+      showContactToast('Please fill in all fields first.', 'error');
+      return;
+    }
+
+    const text = encodeURIComponent(`Hello Madam Choice Footwear,\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+    window.open(`https://wa.me/919133028638?text=${text}`, '_blank');
+  }
+
+  // ✅ Toast notification — no ugly alert() popups
+  function showContactToast(message, type = 'success') {
+    const existing = document.getElementById('contactToast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'contactToast';
+    toast.innerText = message;
+    Object.assign(toast.style, {
+      position: 'fixed', bottom: '28px', left: '50%',
+      transform: 'translateX(-50%) translateY(80px)',
+      background: type === 'error' ? '#e53935' : '#00897b',
+      color: 'white', padding: '14px 28px', borderRadius: '50px',
+      fontSize: '1rem', fontWeight: '600', zIndex: '99999',
+      boxShadow: '0 5px 20px rgba(0,0,0,0.25)',
+      transition: 'transform 0.35s ease',
+    });
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    }));
+    setTimeout(() => {
+      toast.style.transform = 'translateX(-50%) translateY(80px)';
+      setTimeout(() => toast.remove(), 400);
+    }, 3000);
+  }
+
+  // ✅ Show toast when Send form submits
+  document.getElementById('contactForm').addEventListener('submit', function() {
+    showContactToast('✅ Sending your message...');
+  });
+</script>
+
+{% endblock %}

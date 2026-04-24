@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  .products-page {
+    background: #00c6ff;
+    min-height: 100vh;
+    padding: 60px 0;
+  }
+
+  .products-page h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #000;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .products-page .subtitle {
+    text-align: center;
+    color: #1a1a1a;
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+  }
+
+  /* ✅ Category grid — 2 columns on desktop, 1 on mobile */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .category-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,114,255,0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+  }
+
+  .category-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(0,114,255,0.25);
+  }
+
+  /* ✅ Fixed image container — square aspect ratio, no cropping issues */
+  .category-img-wrapper {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+  }
+
+  /* ✅ object-fit: contain shows full image without cropping */
+  .category-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: bottom;
+    transition: transform 0.4s ease;
+  }
+
+  .category-card:hover .category-img-wrapper img {
+    transform: scale(1.05);
+  }
+
+  .category-label {
+    padding: 16px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #004080;
+    background: white;
+  }
+
+  .home-arrow {
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 50%;
+    margin: 0 0 30px 20px;
+    display: inline-block;
+    border: 2px solid #000;
+    text-decoration: none;
+    color: #000;
+    transition: background 0.2s;
+  }
+  .home-arrow:hover { background: rgba(0,0,0,0.1); }
+
+  @media (max-width: 600px) {
+    .category-grid { grid-template-columns: 1fr; gap: 20px; }
+    .products-page h2 { font-size: 1.8rem; }
+    .products-page { padding: 40px 0; }
+  }
+</style>
+
+<div class="products-page">
+  <a href="/" class="home-arrow">←</a>
+
+  <h2>Our Products</h2>
+  <p class="subtitle">Explore our wide variety of ladies footwear</p>
+
+  <div class="category-grid">
+
+    <a href="/heels" class="category-card">
+      <div class="category-img-wrapper">
+        <img src="{{ url_for('static', path='/images/products/heels/cover.jpg') }}" alt="Heels">
+      </div>
+      <div class="category-label">👠 Heels</div>
+    </a>
+
+    <a href="/flats" class="category-card">
+      <div class="category-img-wrapper">
+        <img src="{{ url_for('static', path='/images/products/flats/cover.jpg') }}" alt="Flats">
+      </div>
+      <div class="category-label">🩴 Flats</div>
+    </a>
+
+    <a href="/flipflops" class="category-card">
+      <div class="category-img-wrapper">
+        <img src="{{ url_for('static', path='/images/products/flipflops/cover.jpg') }}" alt="Flip-Flops">
+      </div>
+      <div class="category-label">🩴 Flip-Flops</div>
+    </a>
+
+    <a href="/bridal" class="category-card">
+      <div class="category-img-wrapper">
+        <img src="{{ url_for('static', path='/images/products/bridal/cover.jpg') }}" alt="Bridal Wear" style="object-position: center;">
+      </div>
+      <div class="category-label">👰 Bridal Wear</div>
+    </a>
+
+    <a href="/shoes" class="category-card">
+      <div class="category-img-wrapper">
+        <img src="{{ url_for('static', path='/images/products/shoes/cover.jpg') }}" alt="Shoes">
+      </div>
+      <div class="category-label">👟 Shoes</div>
+    </a>
+
+    <a href="/wedges" class="category-card">
+      <div class="category-img-wrapper">
+        <img src="{{ url_for('static', path='/images/products/wedges/cover.jpg') }}" alt="Wedges">
+      </div>
+      <div class="category-label">👡 Wedges</div>
+    </a>
+
+    <a href="/jooti" class="category-card">
+      <div class="category-img-wrapper">
+        <img src="{{ url_for('static', path='/images/products/jooti/cover.jpg') }}" alt="Jooti">
+      </div>
+      <div class="category-label">🥿 Jooti</div>
+    </a>
+
+    <a href="/casualwear" class="category-card">
+      <div class="category-img-wrapper">
+        <img src="{{ url_for('static', path='/images/products/casualwear/cover.jpg') }}" alt="Casualwear" style="object-position: center;">
+      </div>
+      <div class="category-label">👞 Casualwear</div>
+    </a>
+
+  </div>
+</div>
+
+{% endblock %}

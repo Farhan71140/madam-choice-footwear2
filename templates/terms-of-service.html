@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  .policy-page {
+    background: #00c6ff;
+    min-height: 100vh;
+    padding: 60px 0 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .policy-page::before {
+    content: ''; position: absolute;
+    width: 400px; height: 400px;
+    background: rgba(255,255,255,0.1); border-radius: 50%;
+    top: -150px; right: -150px;
+  }
+  .policy-container {
+    max-width: 800px; margin: 0 auto;
+    position: relative; z-index: 1; padding: 0 20px;
+  }
+  .policy-card {
+    background: white; border-radius: 20px; padding: 50px;
+    box-shadow: 0 10px 40px rgba(0,114,255,0.2);
+  }
+  .policy-card h1 {
+    font-size: 2rem; font-weight: 800; color: #004080; margin-bottom: 5px;
+  }
+  .policy-card .last-updated {
+    font-size: 0.85rem; color: #999; margin-bottom: 35px;
+    padding-bottom: 20px; border-bottom: 2px solid #f0f0f0;
+  }
+  .policy-section { margin-bottom: 30px; }
+  .policy-section h3 {
+    font-size: 1.1rem; font-weight: 700; color: #004080;
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .policy-section p {
+    font-size: 0.95rem; color: #555; line-height: 1.8; margin: 0;
+  }
+  .policy-divider { border: none; border-top: 1px solid #f0f0f0; margin: 25px 0; }
+  .highlight-box {
+    background: #fff8e1; border-left: 4px solid #ff6b00;
+    padding: 15px 20px; border-radius: 10px; margin-top: 10px;
+    font-size: 0.9rem; color: #555; line-height: 1.8;
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #004080; font-weight: 700; text-decoration: none;
+    margin-bottom: 25px; font-size: 0.95rem;
+    background: rgba(255,255,255,0.8); padding: 8px 18px; border-radius: 50px;
+  }
+  @media (max-width: 600px) {
+    .policy-card { padding: 30px 20px; }
+    .policy-card h1 { font-size: 1.5rem; }
+  }
+</style>
+
+<div class="policy-page">
+  <div class="policy-container">
+    <a href="/" class="back-link">← Back to Home</a>
+
+    <div class="policy-card">
+      <h1>📜 Terms of Service</h1>
+      <p class="last-updated">Last updated: January 2025</p>
+
+      <div class="policy-section">
+        <h3>✅ Acceptance of Terms</h3>
+        <p>By using this website, you agree to browse and shop responsibly. These terms apply to all visitors and customers of Madam Choice Footwear.</p>
+      </div>
+      <hr class="policy-divider">
+
+      <div class="policy-section">
+        <h3>🛍️ Orders & Availability</h3>
+        <p>Orders placed via WhatsApp or our website are subject to product availability and confirmation. We reserve the right to cancel orders if a product is out of stock.</p>
+      </div>
+      <hr class="policy-divider">
+
+      <div class="policy-section">
+        <h3>💳 Payments</h3>
+        <p>We accept UPI and WhatsApp-based payments. All transactions must be completed before order dispatch. Please retain your payment screenshot as proof of payment.</p>
+      </div>
+      <hr class="policy-divider">
+
+      <div class="policy-section">
+        <h3>🚚 Delivery</h3>
+        <p>We aim to deliver within 3 days of order confirmation across Secunderabad and Hyderabad. Delivery timelines may vary due to unforeseen circumstances.</p>
+      </div>
+      <hr class="policy-divider">
+
+      <div class="policy-section">
+        <h3>⚠️ Exchange & Return Policy</h3>
+        <div class="highlight-box">
+          🔁 <strong>Exchange within 3 days only.</strong><br>
+          ❌ Goods once used will <strong>not</strong> be taken back under any circumstances.<br>
+          📦 Items must be returned in original condition with packaging.
+        </div>
+      </div>
+      <hr class="policy-divider">
+
+      <div class="policy-section">
+        <h3>🖼️ Intellectual Property</h3>
+        <p>All product images, branding, and content on this website are the property of Madam Choice Footwear and may not be used without written permission.</p>
+      </div>
+      <hr class="policy-divider">
+
+      <div class="policy-section">
+        <h3>📞 Contact Us</h3>
+        <p>For any queries regarding these terms, please contact us at <strong>9133028638</strong> or via <a href="mailto:farhanuddin0516@gmail.com" style="color:#0072ff;">farhanuddin0516@gmail.com</a>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
