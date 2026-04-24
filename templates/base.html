@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Madam Choice Footwear - Secunderabad</title>
+  <link rel="icon" href="{{ url_for('static', path='/images/logo.png') }}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', path='/css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/">
+        <img src="{{ url_for('static', path='/images/logo.png') }}" alt="Madam Choice Logo" style="width:35px;height:35px;object-fit:contain;margin-right:8px;">
+        Madam Choice Footwear
+      </a>
+      <div class="d-flex d-lg-none align-items-center ms-auto gap-1">
+        <button class="btn btn-outline-light position-relative" data-bs-toggle="modal" data-bs-target="#cartModal" style="font-size:1.1rem;padding:6px 12px;">
+          🛒
+          <span id="cartCountMobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;font-size:0.65rem;">0</span>
+        </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+      <div id="nav" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link {% if request.url.path == '/' %}active{% endif %}" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.url.path.startswith('/products') %}active{% endif %}" href="/products">Products</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.url.path == '/about' %}active{% endif %}" href="/about">About</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.url.path == '/contact' %}active{% endif %}" href="/contact">Contact</a></li>
+          <li class="nav-item nav-auth-link"><a class="nav-link {% if request.url.path == '/login' %}active{% endif %}" href="/login">Login</a></li>
+          <li class="nav-item nav-auth-link"><a class="nav-link btn btn-outline-light btn-sm ms-2 px-3" href="/signup">Sign Up</a></li>
+          <li class="nav-item dropdown nav-loggedin" style="display:none;">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
+              <div style="width:32px;height:32px;background:linear-gradient(135deg,#0066cc,#00c6ff);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;">👤</div>
+              <span style="font-size:0.9rem;">My Account</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" style="border-radius:12px;border:none;box-shadow:0 10px 30px rgba(0,0,0,0.15);min-width:180px;margin-top:8px;">
+              <li><h6 class="dropdown-header" style="color:#0066cc;">Welcome back! 👋</h6></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="/orders" style="padding:10px 16px;">📦 My Orders</a></li>
+              <li><a class="dropdown-item text-danger" href="#" onclick="logOut();return false;" style="padding:10px 16px;">🚪 Logout</a></li>
+            </ul>
+          </li>
+          <li class="nav-item d-none d-lg-block">
+            <button class="btn btn-outline-light position-relative ms-2" data-bs-toggle="modal" data-bs-target="#cartModal">
+              🛒 Cart
+              <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer style="background:#0a0a0a;color:#ccc;padding:50px 0 20px;">
+    <div class="container">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:40px;margin-bottom:40px;">
+        <div>
+          <h5 style="color:white;font-weight:800;font-size:1.1rem;margin-bottom:12px;">👠 Madam Choice Footwear</h5>
+          <p style="font-size:0.88rem;line-height:1.8;color:#aaa;"># B-13, Palika Bazar,<br>Station Road, Secunderabad - 500 003<br>Owned and Managed by <span style="color:#00c6ff;font-weight:600;">Md. Siraj Uddin</span></p>
+          <a href="https://www.instagram.com/madamchoice_footwear?igsh=MXJ1aXEwejgzZWxwOA==" target="_blank" style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;color:#aaa;text-decoration:none;font-size:0.88rem;">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="22" height="22"> @madamchoice_footwear
+          </a>
+        </div>
+        <div>
+          <h5 style="color:white;font-weight:700;font-size:1rem;margin-bottom:12px;">📞 Contact Us</h5>
+          <p style="font-size:0.88rem;line-height:2;color:#aaa;margin:0;">
+            <a href="tel:9133028638" style="color:#00c6ff;text-decoration:none;">9133028638</a><br>
+            <a href="tel:9395550002" style="color:#00c6ff;text-decoration:none;">9395550002</a><br>
+            <a href="mailto:farhanuddin0516@gmail.com" style="color:#00c6ff;text-decoration:none;">farhanuddin0516@gmail.com</a>
+          </p>
+          <p style="font-size:0.82rem;color:#555;margin-top:10px;">🕒 Open Daily: 10:00 AM - 9:00 PM</p>
+        </div>
+        <div>
+          <h5 style="color:white;font-weight:700;font-size:1rem;margin-bottom:12px;">🆘 Customer Support</h5>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <a href="https://wa.me/919133028638?text=Order%20not%20delivered.%20Help%20me%20out." target="_blank" style="color:#aaa;text-decoration:none;font-size:0.88rem;">❌ Order Not Delivered</a>
+            <a href="https://wa.me/919133028638?text=Can%20you%20help%20me%20out%20to%20know%20where%20is%20my%20order%3F" target="_blank" style="color:#aaa;text-decoration:none;font-size:0.88rem;">📦 Where Is My Order?</a>
+            <a href="tel:9133028638" style="color:#aaa;text-decoration:none;font-size:0.88rem;">📞 Call Customer Care</a>
+            <a href="https://wa.me/919133028638?text=I%20want%20to%20know%20more%20about%20your%20products%20and%20varieties." target="_blank" style="color:#aaa;text-decoration:none;font-size:0.88rem;">💬 WhatsApp Support</a>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-bottom:30px;">
+        <a href="https://wa.me/919133028638?text=Hello%20Madam%20Choice%20Footwear%2C%20I%20want%20to%20order" target="_blank"
+           style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#25D366,#128C7E);color:white;padding:14px 35px;border-radius:50px;text-decoration:none;font-weight:700;font-size:1rem;box-shadow:0 5px 20px rgba(37,211,102,0.3);">
+          💬 Order on WhatsApp
+        </a>
+      </div>
+      <div style="border-top:1px solid #1f1f1f;padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <small style="color:#444;">© 2005-2025 Madam Choice Footwear. All rights reserved.</small>
+        <div style="display:flex;gap:20px;">
+          <a href="/privacy-policy" style="color:#444;text-decoration:none;font-size:0.82rem;">Privacy Policy</a>
+          <a href="/terms-of-service" style="color:#444;text-decoration:none;font-size:0.82rem;">Terms of Service</a>
+        </div>
+        <small style="color:#444;">* Exchange within 3 days only.</small>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius:16px;overflow:hidden;">
+        <div class="modal-header" style="background:linear-gradient(135deg,#004080,#0066cc);color:white;border:none;">
+          <h5 class="modal-title fw-bold w-100 text-center">🛒 Your Cart</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+
+          <!-- Empty state -->
+          <div id="cartEmptyMsg" class="text-center py-4" style="display:none;">
+            <div style="font-size:3.5rem;margin-bottom:10px;">🛍️</div>
+            <h5 style="color:#004080;font-weight:700;margin-bottom:8px;">Your cart is empty!</h5>
+            <p style="font-size:0.9rem;color:#888;margin-bottom:20px;">Looks like you have not added anything yet.<br>Explore our beautiful collection!</p>
+            <button class="btn btn-primary px-4 py-2 fw-bold" style="border-radius:50px;background:linear-gradient(135deg,#004080,#0066cc);border:none;" onclick="browseProducts()">🛍️ Browse Products</button>
+          </div>
+
+          <!-- Cart items -->
+          <ul id="cartModalItems" class="list-group mb-3"></ul>
+
+          <!-- Delivery Address Section -->
+          <div id="deliverySection" style="display:none;margin-bottom:16px;">
+            <div style="border-top:1px solid #f0f0f0;padding-top:14px;">
+              <label style="font-size:0.9rem;font-weight:700;color:#333;display:block;margin-bottom:8px;">
+                📍 Add Your Delivery Address <span style="color:#e53935;">*</span>
+              </label>
+
+              <!-- Search input -->
+              <div style="position:relative;">
+                <input
+                  type="text"
+                  id="deliveryAddress"
+                  placeholder="Search area, street, building or pincode..."
+                  autocomplete="off"
+                  style="width:100%;padding:12px 85px 12px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:0.9rem;outline:none;box-sizing:border-box;color:#333;transition:border-color 0.2s;"
+                  oninput="onAddressInput(this.value)"
+                  onfocus="this.style.borderColor='#0066cc'"
+                  onblur="setTimeout(function(){document.getElementById('addressSuggestions').style.display='none';},200)"
+                >
+                <button onclick="detectGPS()" title="Use my current location"
+                  style="position:absolute;right:6px;top:50%;transform:translateY(-50%);padding:6px 11px;background:#004080;color:white;border:none;border-radius:7px;font-size:0.75rem;cursor:pointer;white-space:nowrap;">
+                  📍 GPS
+                </button>
+              </div>
+
+              <!-- Suggestions dropdown -->
+              <div id="addressSuggestions" style="display:none;position:relative;z-index:9999;">
+                <div id="suggestionsList"
+                  style="background:white;border:1px solid #e0e0e0;border-top:none;border-radius:0 0 12px 12px;max-height:240px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.12);">
+                </div>
+              </div>
+
+              <!-- Confirmed address chip -->
+              <div id="selectedAddressBox" style="display:none;margin-top:10px;padding:10px 14px;background:#f0f7ff;border:1.5px solid #0066cc;border-radius:10px;">
+                <div style="font-size:0.82rem;font-weight:700;color:#004080;margin-bottom:3px;">✅ Delivery address confirmed</div>
+                <div id="selectedAddressText" style="font-size:0.82rem;color:#333;line-height:1.5;"></div>
+                <button onclick="clearSelectedAddress()"
+                  style="margin-top:6px;background:none;border:none;color:#e53935;font-size:0.78rem;cursor:pointer;padding:0;text-decoration:underline;">
+                  ✕ Change address
+                </button>
+              </div>
+
+              <!-- Delivery result message -->
+              <div id="deliveryResult" style="display:none;margin-top:10px;padding:10px 14px;border-radius:10px;font-size:0.85rem;"></div>
+            </div>
+          </div>
+
+          <!-- Totals -->
+          <div id="cartTotalRow" style="display:none;">
+            <div class="d-flex justify-content-between align-items-center py-2 border-top">
+              <span style="color:#555;">Items Total</span>
+              <span style="font-weight:700;">&#8377;<span id="cartItemsTotal">0</span></span>
+            </div>
+            <div id="deliveryChargeRow" style="display:none;">
+              <div class="d-flex justify-content-between align-items-center py-2">
+                <span style="color:#555;">🚚 Delivery <small id="deliveryKmLabel" style="color:#999;"></small></span>
+                <span style="font-weight:700;color:#e53935;">+ &#8377;<span id="deliveryChargeAmt">0</span></span>
+              </div>
+            </div>
+            <div id="freeDeliveryRow" style="display:none;">
+              <div class="d-flex justify-content-between align-items-center py-2">
+                <span style="color:#22c55e;font-weight:600;">🎉 Free Delivery!</span>
+                <span style="font-weight:700;color:#22c55e;">&#8377;0</span>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center fw-bold fs-5 border-top pt-2 mt-1">
+              <span>Grand Total</span>
+              <span style="color:#004080;">&#8377;<span id="cartModalTotal">0</span></span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div id="cartActions" class="mt-3 d-flex flex-column gap-2" style="display:none;">
+            <button id="proceedToPayBtn" class="btn btn-primary fw-bold py-2" onclick="goToPayment()" disabled
+              style="opacity:0.5;cursor:not-allowed;background:linear-gradient(135deg,#004080,#0066cc);border:none;border-radius:10px;">
+              💳 Proceed to Pay
+            </button>
+            <div id="addressWarning" style="text-align:center;font-size:0.8rem;color:#e53935;">⚠️ Please select your delivery address first</div>
+            <button class="btn btn-outline-danger btn-sm" onclick="clearCartFromModal()">🗑️ Clear Cart</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Popup -->
+  <div id="loginPrompt" style="display:none;position:fixed;bottom:20px;right:20px;z-index:99999;background:white;border-radius:16px;padding:20px 25px;box-shadow:0 10px 40px rgba(0,114,255,0.3);max-width:280px;border-left:4px solid #0072ff;">
+    <button onclick="dismissLoginPrompt()" style="position:absolute;top:8px;right:12px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#999;">✕</button>
+    <div style="font-size:1.5rem;margin-bottom:8px;">👠</div>
+    <p style="font-weight:700;color:#004080;margin:0 0 5px;">Welcome to Madam Choice!</p>
+    <p style="font-size:0.85rem;color:#666;margin:0 0 15px;">Login for a better shopping experience</p>
+    <a href="/login" style="display:block;text-align:center;background:linear-gradient(135deg,#004080,#0066cc);color:white;padding:10px;border-radius:8px;text-decoration:none;font-weight:600;margin-bottom:8px;">🔑 Login</a>
+    <a href="/signup" style="display:block;text-align:center;border:2px solid #0072ff;color:#0072ff;padding:8px;border-radius:8px;text-decoration:none;font-weight:600;">📝 Sign Up</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', path='/js/cart.js') }}"></script>
+  <script src="{{ url_for('static', path='/js/app.js') }}"></script>
+
+  <script>
+    // ── CONFIG ────────────────────────────────────────────────────────────────
+    var SHOP_LAT          = 17.44124;
+    var SHOP_LNG          = 78.49924;
+    var RATE_PER_KM       = 15;
+    var FREE_DELIVERY_MIN = 999;
+    var OLA_KEY           = 'dNtePSI6Smb14eIsCnd3wDPb3ce1pNRn0BFR73kQ';
+
+    // ── STATE ─────────────────────────────────────────────────────────────────
+    var deliveryCharge     = 0;
+    var customerLat        = null;
+    var customerLon        = null;
+    var suggestionTimer    = null;
+    var currentSuggestions = [];
+
+    // ── CART MODAL ────────────────────────────────────────────────────────────
+    document.getElementById('cartModal').addEventListener('show.bs.modal', function () {
+      renderCartModal();
+    });
+
+    function renderCartModal() {
+      var cart        = JSON.parse(localStorage.getItem('cart') || '[]');
+      var itemsList   = document.getElementById('cartModalItems');
+      var emptyMsg    = document.getElementById('cartEmptyMsg');
+      var totalRow    = document.getElementById('cartTotalRow');
+      var cartActions = document.getElementById('cartActions');
+      var deliverySec = document.getElementById('deliverySection');
+      itemsList.innerHTML = '';
+
+      if (cart.length === 0) {
+        emptyMsg.style.display    = 'block';
+        totalRow.style.display    = 'none';
+        cartActions.style.display = 'none';
+        deliverySec.style.display = 'none';
+        deliveryCharge = 0; customerLat = null; customerLon = null;
+        return;
+      }
+
+      emptyMsg.style.display    = 'none';
+      totalRow.style.display    = 'block';
+      cartActions.style.display = 'flex';
+      deliverySec.style.display = 'block';
+
+      var itemsTotal = 0;
+      cart.forEach(function (item, index) {
+        var itemTotal  = item.price * item.quantity;
+        itemsTotal    += itemTotal;
+        itemsList.innerHTML +=
+          '<li class="list-group-item d-flex justify-content-between align-items-center">' +
+            '<div>' +
+              '<div class="fw-semibold" style="cursor:pointer;color:#0066cc;" onclick="goToProduct(\'' + item.name + '\')">' + item.name + '</div>' +
+              '<small class="text-muted">&#8377;' + item.price.toFixed(2) + ' x ' + item.quantity + '</small>' +
+            '</div>' +
+            '<div class="d-flex align-items-center gap-2">' +
+              '<span class="fw-bold">&#8377;' + itemTotal.toFixed(2) + '</span>' +
+              '<button class="btn btn-sm btn-outline-danger" onclick="removeAndRefresh(' + index + ')">&#x2715;</button>' +
+            '</div>' +
+          '</li>';
+      });
+
+      document.getElementById('cartItemsTotal').innerText = itemsTotal.toFixed(2);
+      if (customerLat !== null && customerLon !== null) {
+        computeDelivery(customerLat, customerLon);
+      } else {
+        updateGrandTotal(itemsTotal);
+      }
+    }
+
+    function updateGrandTotal(itemsTotal) {
+      var grand = itemsTotal + deliveryCharge;
+      document.getElementById('cartModalTotal').innerText = grand.toFixed(2);
+      localStorage.setItem('cartTotal', grand.toFixed(2));
+    }
+
+    // ── OLA MAPS AUTOCOMPLETE ─────────────────────────────────────────────────
+    function onAddressInput(query) {
+      clearTimeout(suggestionTimer);
+      var box = document.getElementById('addressSuggestions');
+      if (query.length < 2) { box.style.display = 'none'; return; }
+
+      suggestionTimer = setTimeout(function () {
+        fetch(
+          'https://api.olamaps.io/places/v1/autocomplete' +
+          '?input='    + encodeURIComponent(query) +
+          '&location=' + SHOP_LAT + ',' + SHOP_LNG +
+          '&radius=50000' +
+          '&api_key='  + OLA_KEY,
+          { headers: { 'X-Request-Id': 'mc-' + Date.now() } }
+        )
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var preds = (data && data.predictions) ? data.predictions : [];
+          if (!preds.length) { box.style.display = 'none'; return; }
+          currentSuggestions = preds;
+          renderSuggestions(preds);
+        })
+        .catch(function () { box.style.display = 'none'; });
+      }, 300);
+    }
+
+    function renderSuggestions(predictions) {
+      var list = document.getElementById('suggestionsList');
+      var box  = document.getElementById('addressSuggestions');
+
+      list.innerHTML = predictions.map(function (p, i) {
+        var sf        = p.structured_formatting || {};
+        var main      = sf.main_text      || p.description || '';
+        var secondary = sf.secondary_text || '';
+        return (
+          '<div onmousedown="selectSuggestion(' + i + ')"' +
+          ' style="padding:11px 16px;cursor:pointer;border-bottom:1px solid #f5f5f5;display:flex;align-items:flex-start;gap:10px;transition:background 0.1s;"' +
+          ' onmouseover="this.style.background=\'#f0f7ff\'" onmouseout="this.style.background=\'white\'">' +
+            '<span style="margin-top:2px;font-size:1rem;flex-shrink:0;">📍</span>' +
+            '<div>' +
+              '<div style="font-weight:600;font-size:0.88rem;color:#1a1a1a;">' + main + '</div>' +
+              (secondary ? '<div style="font-size:0.78rem;color:#888;margin-top:2px;">' + secondary + '</div>' : '') +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+
+      box.style.display = 'block';
+    }
+
+    function selectSuggestion(index) {
+      var p = currentSuggestions[index];
+      if (!p) return;
+
+      document.getElementById('addressSuggestions').style.display = 'none';
+
+      var sf          = p.structured_formatting || {};
+      var displayName = sf.main_text || p.description || '';
+      document.getElementById('deliveryAddress').value = displayName;
+
+      showDeliveryMsg('📍 Confirming location...', '#e8f4fd', '#004080');
+
+      // Get exact coordinates via Place Details
+      fetch(
+        'https://api.olamaps.io/places/v1/details' +
+        '?place_id=' + p.place_id +
+        '&api_key='  + OLA_KEY,
+        { headers: { 'X-Request-Id': 'mc-det-' + Date.now() } }
+      )
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.result && data.result.geometry && data.result.geometry.location) {
+          customerLat = data.result.geometry.location.lat;
+          customerLon = data.result.geometry.location.lng;
+
+          var fullAddr = data.result.formatted_address || displayName;
+          document.getElementById('selectedAddressText').innerText = fullAddr;
+          document.getElementById('selectedAddressBox').style.display = 'block';
+
+          computeDelivery(customerLat, customerLon);
+        } else {
+          showDeliveryMsg('❌ Could not confirm location. Try another address.', '#fef2f2', '#991b1b');
+        }
+      })
+      .catch(function () {
+        showDeliveryMsg('❌ Network error. Please try again.', '#fef2f2', '#991b1b');
+      });
+    }
+
+    function clearSelectedAddress() {
+      document.getElementById('selectedAddressBox').style.display = 'none';
+      document.getElementById('deliveryResult').style.display     = 'none';
+      document.getElementById('deliveryAddress').value            = '';
+      document.getElementById('deliveryChargeRow').style.display  = 'none';
+      document.getElementById('freeDeliveryRow').style.display    = 'none';
+      customerLat = null; customerLon = null; deliveryCharge = 0;
+      var btn  = document.getElementById('proceedToPayBtn');
+      var warn = document.getElementById('addressWarning');
+      if (btn)  { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed'; }
+      if (warn) { warn.style.display = 'block'; }
+      var cart       = JSON.parse(localStorage.getItem('cart') || '[]');
+      var itemsTotal = cart.reduce(function (s, i) { return s + i.price * i.quantity; }, 0);
+      updateGrandTotal(itemsTotal);
+    }
+
+    // ── GPS ───────────────────────────────────────────────────────────────────
+    function detectGPS() {
+      if (!navigator.geolocation) {
+        showDeliveryMsg('❌ GPS not supported on your device.', '#fef2f2', '#991b1b');
+        return;
+      }
+      showDeliveryMsg('🛰️ Detecting your location...', '#e8f4fd', '#004080');
+
+      navigator.geolocation.getCurrentPosition(
+        function (pos) {
+          customerLat = pos.coords.latitude;
+          customerLon = pos.coords.longitude;
+
+          // Reverse geocode with Ola Maps
+          fetch(
+            'https://api.olamaps.io/places/v1/reverse-geocode' +
+            '?latlng='  + customerLat + ',' + customerLon +
+            '&api_key=' + OLA_KEY,
+            { headers: { 'X-Request-Id': 'mc-rev-' + Date.now() } }
+          )
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var addr = '';
+            if (data && data.results && data.results[0]) {
+              addr = data.results[0].formatted_address || '';
+            }
+            if (addr) {
+              document.getElementById('deliveryAddress').value          = addr;
+              document.getElementById('selectedAddressText').innerText  = addr;
+              document.getElementById('selectedAddressBox').style.display = 'block';
+            }
+          })
+          .catch(function () {});
+
+          computeDelivery(customerLat, customerLon);
+        },
+        function () {
+          showDeliveryMsg('❌ Could not detect GPS. Please type your address.', '#fef2f2', '#991b1b');
+        }
+      );
+    }
+
+    // ── DELIVERY CALC ─────────────────────────────────────────────────────────
+    function computeDelivery(lat, lon) {
+      var dLat   = (lat - SHOP_LAT) * Math.PI / 180;
+      var dLon   = (lon - SHOP_LNG) * Math.PI / 180;
+      var a      = Math.sin(dLat/2)*Math.sin(dLat/2) +
+                   Math.cos(SHOP_LAT*Math.PI/180)*Math.cos(lat*Math.PI/180)*
+                   Math.sin(dLon/2)*Math.sin(dLon/2);
+      var distKm = parseFloat((6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 1.3).toFixed(1));
+
+      var cart       = JSON.parse(localStorage.getItem('cart') || '[]');
+      var itemsTotal = cart.reduce(function (sum, i) { return sum + i.price * i.quantity; }, 0);
+      document.getElementById('cartItemsTotal').innerText = itemsTotal.toFixed(2);
+
+      if (itemsTotal >= FREE_DELIVERY_MIN) {
+        deliveryCharge = 0;
+        document.getElementById('freeDeliveryRow').style.display   = 'block';
+        document.getElementById('deliveryChargeRow').style.display = 'none';
+        showDeliveryMsg('✅ ' + distKm + ' km away — 🎉 FREE delivery on your order!', '#f0fdf4', '#166534');
+      } else {
+        deliveryCharge = Math.round(distKm * RATE_PER_KM);
+        var needed     = Math.ceil(FREE_DELIVERY_MIN - itemsTotal);
+        document.getElementById('freeDeliveryRow').style.display   = 'none';
+        document.getElementById('deliveryChargeRow').style.display = 'block';
+        document.getElementById('deliveryChargeAmt').innerText     = deliveryCharge;
+        document.getElementById('deliveryKmLabel').innerText       = '(' + distKm + ' km)';
+        showDeliveryMsg(
+          '📍 ' + distKm + ' km away · ₹' + deliveryCharge + ' delivery charge' +
+          '<br><small>Add ₹' + needed + ' more for FREE delivery! 🎁</small>',
+          '#fff8e1', '#856404'
+        );
+      }
+
+      localStorage.setItem('deliveryCharge', deliveryCharge);
+      updateGrandTotal(itemsTotal);
+
+      var btn  = document.getElementById('proceedToPayBtn');
+      var warn = document.getElementById('addressWarning');
+      if (btn)  { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
+      if (warn) { warn.style.display = 'none'; }
+    }
+
+    function showDeliveryMsg(html, bg, color) {
+      var el = document.getElementById('deliveryResult');
+      el.style.display      = 'block';
+      el.style.background   = bg;
+      el.style.color        = color;
+      el.style.padding      = '10px 14px';
+      el.style.borderRadius = '10px';
+      el.innerHTML          = html;
+    }
+
+    // ── CART HELPERS ──────────────────────────────────────────────────────────
+    function removeAndRefresh(index) {
+      var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateCartBadge();
+      renderCartModal();
+    }
+
+    function clearCartFromModal() {
+      localStorage.removeItem('cart');
+      localStorage.removeItem('cartTotal');
+      localStorage.removeItem('deliveryCharge');
+      deliveryCharge = 0; customerLat = null; customerLon = null;
+      updateCartBadge();
+      renderCartModal();
+    }
+
+    function browseProducts() {
+      bootstrap.Modal.getInstance(document.getElementById('cartModal')).hide();
+      setTimeout(function () { window.location.href = '/products'; }, 300);
+    }
+
+    function goToPayment() {
+      var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      if (cart.length === 0) return;
+      bootstrap.Modal.getInstance(document.getElementById('cartModal')).hide();
+      setTimeout(function () { window.location.href = '/pay'; }, 300);
+    }
+
+    function goToProduct(name) {
+      var n = name.split(' ')[0];
+      if      (n.endsWith('H')) window.location.href = '/heels';
+      else if (n.endsWith('F')) window.location.href = '/flats';
+      else if (n.endsWith('W')) window.location.href = '/wedges';
+      else if (n.endsWith('B')) window.location.href = '/bridal';
+      else if (n.endsWith('S')) window.location.href = '/shoes';
+      else if (n.endsWith('C')) window.location.href = '/casualwear';
+      else                      window.location.href = '/products';
+    }
+
+    function updateCartBadge() {
+      var cart  = JSON.parse(localStorage.getItem('cart') || '[]');
+      var count = cart.reduce(function (sum, i) { return sum + i.quantity; }, 0);
+      var badge = document.getElementById('cartCount');
+      var mob   = document.getElementById('cartCountMobile');
+      if (badge) { badge.innerText = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; }
+      if (mob)   { mob.innerText   = count; mob.style.display   = count > 0 ? 'inline-block' : 'none'; }
+    }
+
+    // ── INIT ──────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+      updateCartBadge();
+
+      var loggedIn = sessionStorage.getItem('userLoggedIn');
+      if (loggedIn || document.referrer.includes('/login')) {
+        sessionStorage.setItem('userLoggedIn', 'true');
+        document.querySelectorAll('.nav-auth-link').forEach(function (el) { el.style.display = 'none'; });
+        document.querySelectorAll('.nav-loggedin').forEach(function (el) { el.style.display = 'block'; });
+      }
+    });
+
+    function logOut() {
+      sessionStorage.removeItem('userLoggedIn');
+      sessionStorage.removeItem('loginPromptDismissed');
+      window.location.href = '/';
+    }
+
+    function dismissLoginPrompt() {
+      document.getElementById('loginPrompt').style.display = 'none';
+      sessionStorage.setItem('loginPromptDismissed', 'true');
+    }
+
+    // Login prompt
+    var currentPath = window.location.pathname;
+    var isAuthPage  = currentPath === '/login' || currentPath === '/signup';
+    var dismissed   = sessionStorage.getItem('loginPromptDismissed');
+    var loggedIn    = sessionStorage.getItem('userLoggedIn');
+
+    if (document.referrer.includes('/login') || document.referrer.includes('/signup')) {
+      sessionStorage.setItem('userLoggedIn', 'true');
+      sessionStorage.setItem('loginPromptDismissed', 'true');
+    }
+
+    if (!isAuthPage && !dismissed && !loggedIn) {
+      setTimeout(function () {
+        document.getElementById('loginPrompt').style.display = 'block';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
