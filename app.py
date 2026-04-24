@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import smtplib
+import ssl
 from email.message import EmailMessage
 from sqlmodel import SQLModel, Field, Session, create_engine, select
 from datetime import datetime
@@ -16,7 +17,7 @@ load_dotenv()
 # -------------------------------
 # Password hashing setup
 # -------------------------------
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
@@ -38,9 +39,22 @@ templates = Jinja2Templates(directory="templates")
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///database.db")
 
 if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+pg8000://", 1)
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+pg8000://", 1)
 
-engine = create_engine(DATABASE_URL, echo=False)
+if "pg8000" in DATABASE_URL:
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    engine = create_engine(
+        DATABASE_URL,
+        echo=False,
+        pool_pre_ping=True,
+        connect_args={"ssl_context": ssl_context}
+    )
+else:
+    engine = create_engine(DATABASE_URL, echo=False)
 
 # ----------------------------
 # Models
@@ -68,7 +82,6 @@ class Order(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     paid_at: datetime | None = None
 
-# ✅ FIXED: renamed table from "user" to "appuser" — "user" is reserved in PostgreSQL
 class User(SQLModel, table=True):
     __tablename__ = "appuser"
     id: int | None = Field(default=None, primary_key=True)
@@ -170,7 +183,7 @@ async def contact_form(
     email: str = Form(...),
     message: str = Form(...)
 ):
-    gmail_user = os.getenv("GMAIL_USER", "farhanuddin0516@gmail.com")
+    gmail_user = os.getenv("GMAIL_USER", "")
     gmail_app_password = os.getenv("GMAIL_APP_PASSWORD", "")
 
     msg = EmailMessage()
@@ -302,8 +315,12 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
             user = session.exec(select(User).where(User.email == email)).first()
             if not user or not verify_password(password, user.password_hash):
                 return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid email or password!"})
-            # ✅ Redirect to homepage after successful login
             return RedirectResponse(url="/", status_code=303)
     except Exception as e:
         print("Login error:", e)
         return templates.TemplateResponse("login.html", {"request": request, "error": f"Something went wrong: {str(e)}"})
+
+# ----------------------------
+# Required for Vercel
+# ----------------------------
+handler = app
