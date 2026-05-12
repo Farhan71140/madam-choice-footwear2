@@ -8,6 +8,7 @@ from sqlmodel import SQLModel, Field, Session, create_engine, select
 from datetime import datetime
 import uuid
 import os
+import httpx
 
 from passlib.context import CryptContext
 from dotenv import load_dotenv
@@ -313,6 +314,58 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
     except Exception as e:
         print("Login error:", e)
         return templates.TemplateResponse("login.html", {"request": request, "error": f"Something went wrong: {str(e)}"})
+
+# ----------------------------
+# AI Chat Proxy (Google Gemini - Free)
+# ----------------------------
+@app.post("/api/chat")
+async def ai_chat(request: Request):
+    try:
+        data = await request.json()
+        api_key = os.getenv("GEMINI_API_KEY", "")
+        if not api_key:
+            return JSONResponse({"error": "API key not set"}, status_code=500)
+
+        system_prompt = data.get("system", "")
+        messages = data.get("messages", [])
+
+        # Build Gemini contents array
+        contents = []
+        for msg in messages:
+            role = "user" if msg["role"] == "user" else "model"
+            contents.append({
+                "role": role,
+                "parts": [{"text": msg["content"]}]
+            })
+
+        gemini_payload = {
+            "system_instruction": {"parts": [{"text": system_prompt}]},
+            "contents": contents,
+            "generationConfig": {"maxOutputTokens": 400, "temperature": 0.7}
+        }
+
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                url,
+                headers={"content-type": "application/json"},
+                json=gemini_payload,
+                timeout=30.0,
+            )
+
+        result = resp.json()
+        # Extract text from Gemini response and convert to Claude-like format
+        try:
+            text = result["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception:
+            text = "Sorry, I could not respond. Please WhatsApp us at +91 9133028638!"
+
+        return JSONResponse({"content": [{"type": "text", "text": text}]})
+
+    except Exception as e:
+        print("Chat error:", e)
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 # ----------------------------
 # Required for Vercel
