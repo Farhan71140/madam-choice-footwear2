@@ -7,6 +7,130 @@
   <link rel="icon" href="{{ url_for('static', path='/images/logo.png') }}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="{{ url_for('static', path='/css/style.css') }}" rel="stylesheet">
+
+  <!-- AI Chat Widget Styles -->
+  <style>
+    #ai-chat-bubble {
+      position: fixed; bottom: 28px; right: 28px;
+      width: 62px; height: 62px; border-radius: 50%;
+      background: linear-gradient(135deg, #004080, #0066cc);
+      box-shadow: 0 6px 24px rgba(0,64,128,0.45);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      z-index: 9998; border: none; outline: none;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    #ai-chat-bubble:hover { transform: scale(1.1); box-shadow: 0 10px 32px rgba(0,64,128,0.55); }
+    #ai-chat-bubble svg { width: 28px; height: 28px; fill: white; transition: opacity 0.2s; position: absolute; }
+    #ai-chat-bubble .ico-chat  { opacity: 1; }
+    #ai-chat-bubble .ico-close { opacity: 0; }
+    #ai-chat-bubble.open .ico-chat  { opacity: 0; }
+    #ai-chat-bubble.open .ico-close { opacity: 1; }
+    #ai-notif-dot {
+      position: absolute; top: 4px; right: 4px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #ff3b30; border: 2px solid white; display: none;
+      animation: ai-pulse 1.8s infinite;
+    }
+    @keyframes ai-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+
+    #ai-chat-window {
+      position: fixed; bottom: 104px; right: 28px;
+      width: 360px; max-width: calc(100vw - 32px);
+      height: 540px; max-height: calc(100vh - 130px);
+      background: #fff; border-radius: 22px;
+      box-shadow: 0 20px 60px rgba(0,40,100,0.22);
+      display: flex; flex-direction: column; overflow: hidden;
+      z-index: 9999;
+      transform: scale(0.85) translateY(30px); opacity: 0; pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
+      transform-origin: bottom right;
+    }
+    #ai-chat-window.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
+
+    .ai-header {
+      background: linear-gradient(135deg, #003a7a 0%, #0055bb 100%);
+      padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .ai-header-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.35);
+      display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+    }
+    .ai-header-name   { color: #fff; font-weight: 700; font-size: 0.92rem; }
+    .ai-header-status { color: rgba(255,255,255,0.75); font-size: 0.75rem; display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+    .ai-status-dot    { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; }
+
+    .ai-messages {
+      flex: 1; overflow-y: auto; padding: 14px 12px;
+      display: flex; flex-direction: column; gap: 10px;
+      background: #f8faff; scroll-behavior: smooth;
+    }
+    .ai-messages::-webkit-scrollbar { width: 4px; }
+    .ai-messages::-webkit-scrollbar-thumb { background: #c5d3e8; border-radius: 4px; }
+
+    .ai-msg { display: flex; align-items: flex-end; gap: 8px; max-width: 88%; animation: ai-in 0.3s ease-out; }
+    @keyframes ai-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .ai-msg.bot  { align-self: flex-start; }
+    .ai-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .ai-msg-av {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #004080, #0066cc);
+      display: flex; align-items: center; justify-content: center; font-size: 12px;
+    }
+    .ai-bubble {
+      padding: 9px 13px; border-radius: 16px;
+      font-size: 0.86rem; line-height: 1.55; max-width: 100%; word-break: break-word;
+    }
+    .ai-msg.bot  .ai-bubble { background: white; color: #1a2540; border-bottom-left-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .ai-msg.user .ai-bubble { background: linear-gradient(135deg,#004080,#0066cc); color: white; border-bottom-right-radius: 4px; }
+
+    .ai-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0 2px 34px; animation: ai-in 0.3s ease-out; }
+    .ai-chip {
+      background: #e8f0fe; color: #004080;
+      border: 1.5px solid #b3c9f5; border-radius: 20px;
+      padding: 5px 11px; font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    }
+    .ai-chip:hover { background: #004080; color: white; border-color: #004080; }
+
+    .ai-typing { display: flex; align-items: center; gap: 8px; align-self: flex-start; animation: ai-in 0.3s ease-out; }
+    .ai-typing-dots {
+      background: white; padding: 11px 14px;
+      border-radius: 16px; border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      display: flex; gap: 5px; align-items: center;
+    }
+    .ai-typing-dots span {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #004080; animation: ai-bounce 1.2s infinite; opacity: 0.6;
+    }
+    .ai-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .ai-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes ai-bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
+    .ai-input-area {
+      padding: 10px 12px; border-top: 1px solid #e8eef8;
+      background: white; display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0;
+    }
+    #ai-input {
+      flex: 1; border: 1.5px solid #dde5f5; border-radius: 18px;
+      padding: 9px 13px; font-size: 0.86rem; font-family: inherit;
+      resize: none; min-height: 38px; max-height: 90px; outline: none;
+      color: #1a2540; line-height: 1.4; transition: border-color 0.2s; overflow-y: auto;
+    }
+    #ai-input:focus { border-color: #0066cc; }
+    #ai-input::placeholder { color: #9aabcc; }
+    #ai-send-btn {
+      width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #004080, #0066cc);
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 12px rgba(0,64,128,0.35); transition: transform 0.2s;
+    }
+    #ai-send-btn:hover { transform: scale(1.1); }
+    #ai-send-btn svg   { width: 16px; height: 16px; fill: white; }
+    .ai-footer { text-align: center; font-size: 0.68rem; color: #9aabcc; padding: 5px 0 8px; background: white; }
+    .ai-footer b { color: #004080; }
+  </style>
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -223,6 +347,32 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{{ url_for('static', path='/js/cart.js') }}"></script>
   <script src="{{ url_for('static', path='/js/app.js') }}"></script>
+
+  <!-- AI Chat Widget HTML -->
+  <button id="ai-chat-bubble" onclick="aiToggle()" aria-label="Open AI Assistant">
+    <span id="ai-notif-dot"></span>
+    <svg class="ico-chat" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 10H6V10h12v2zm0-3H6V7h12v2z"/></svg>
+    <svg class="ico-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  </button>
+
+  <div id="ai-chat-window" role="dialog" aria-label="Madam Choice AI Assistant">
+    <div class="ai-header">
+      <div class="ai-header-avatar">👠</div>
+      <div>
+        <div class="ai-header-name">Madam Choice Assistant</div>
+        <div class="ai-header-status"><span class="ai-status-dot"></span> Online · Replies instantly</div>
+      </div>
+    </div>
+    <div class="ai-messages" id="ai-messages"></div>
+    <div class="ai-input-area">
+      <textarea id="ai-input" placeholder="Ask about products, delivery, sizes..." rows="1"
+        onkeydown="aiKey(event)" oninput="aiResize(this)"></textarea>
+      <button id="ai-send-btn" onclick="aiSend()" aria-label="Send">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+    <div class="ai-footer">Powered by <b>Gemini AI</b> · Madam Choice Footwear</div>
+  </div>
 
   <script>
     // ── CONFIG ────────────────────────────────────────────────────────────────
@@ -563,6 +713,128 @@
       sessionStorage.removeItem('loginPromptDismissed');
       window.location.href = '/';
     }
+
+    // ═══════════════════════════════════════════════════════
+    // AI CHAT WIDGET
+    // ═══════════════════════════════════════════════════════
+    var AI_SYSTEM = "You are the friendly AI customer assistant for Madam Choice Footwear, a ladies footwear store in Secunderabad.\n\nSTORE DETAILS:\n- Owner: Md. Siraj Uddin\n- Address: # B-13, Palika Bazar, Station Road, Secunderabad – 500 003\n- Phone: 9133028638 / 9395550002\n- Email: farhanuddin0516@gmail.com\n- Instagram: @madamchoice_footwear\n- WhatsApp: +91 9133028638\n- Established: 2005 | 1000+ happy customers\n- Hours: Open Daily 10:00 AM – 9:00 PM\n\nPRODUCTS (all ladies footwear):\nHeels, Flats (around Rs.320), Wedges, Flip-flops, Bridal Wear, Shoes (Rs.350-Rs.650), Jooti, Casualwear, Fancy chappals and sandals. Sizes available: 6 to 11.\n\nDELIVERY:\n- Free delivery on orders above Rs.999\n- Rs.15-20/km charge below Rs.999\n- Delivery within 3 days across Secunderabad and Hyderabad\n\nPAYMENT: UPI only. Customer must keep payment screenshot as proof.\n\nCOUPON: MADAMCHOICE10 gives 5% off below Rs.500, 8% off Rs.500-Rs.899, 10% off Rs.900+\n\nEXCHANGE POLICY:\n- Exchange within 3 days only\n- Used goods will NOT be taken back\n- Items must be in original condition\n\nHOW TO ORDER:\n1. Browse products on the website\n2. Select size and quantity, add to cart\n3. Proceed to Pay, fill in details\n4. Pay via UPI and share screenshot on WhatsApp\n\nRULES:\n- Be warm, friendly, and conversational\n- Use emojis occasionally to keep it friendly\n- Keep replies short and easy to read\n- Answer in the same language the customer uses (English, Hinglish, or Urdu)\n- If you do not know an exact price, say: Please WhatsApp us for the exact price\n- Always encourage visiting the website or WhatsApp for orders";
+
+    var aiMessages = [];
+    var aiTyping   = false;
+    var aiOpen     = false;
+
+    function aiToggle() {
+      aiOpen = !aiOpen;
+      document.getElementById('ai-chat-window').classList.toggle('open', aiOpen);
+      document.getElementById('ai-chat-bubble').classList.toggle('open', aiOpen);
+      document.getElementById('ai-notif-dot').style.display = 'none';
+      if (aiOpen && aiMessages.length === 0) aiWelcome();
+      if (aiOpen) setTimeout(function(){ document.getElementById('ai-input').focus(); }, 350);
+    }
+
+    function aiWelcome() {
+      aiBotMsg("Assalamu Alaikum! Welcome to Madam Choice Footwear! I am your AI assistant. How can I help you today?");
+      setTimeout(function(){
+        aiShowChips(["View products", "Delivery info", "Coupon code", "Exchange policy", "Contact us"]);
+      }, 600);
+    }
+
+    function aiShowChips(opts) {
+      var box = document.getElementById('ai-messages');
+      var d = document.createElement('div');
+      d.className = 'ai-chips';
+      opts.forEach(function(o){
+        var c = document.createElement('button');
+        c.className = 'ai-chip'; c.textContent = o;
+        c.onclick = function(){ d.remove(); aiSendUser(o); };
+        d.appendChild(c);
+      });
+      box.appendChild(d);
+      aiScroll();
+    }
+
+    function aiBotMsg(text) {
+      var box = document.getElementById('ai-messages');
+      var d = document.createElement('div');
+      d.className = 'ai-msg bot';
+      d.innerHTML = '<div class="ai-msg-av">👠</div><div class="ai-bubble">' + aiFormat(text) + '</div>';
+      box.appendChild(d);
+      aiScroll();
+    }
+
+    function aiUserMsg(text) {
+      var box = document.getElementById('ai-messages');
+      var d = document.createElement('div');
+      d.className = 'ai-msg user';
+      d.innerHTML = '<div class="ai-bubble">' + aiEscape(text) + '</div>';
+      box.appendChild(d);
+      aiScroll();
+    }
+
+    function aiShowTyping() {
+      var box = document.getElementById('ai-messages');
+      var d = document.createElement('div');
+      d.className = 'ai-typing'; d.id = 'ai-typing';
+      d.innerHTML = '<div class="ai-msg-av">👠</div><div class="ai-typing-dots"><span></span><span></span><span></span></div>';
+      box.appendChild(d); aiScroll();
+    }
+
+    function aiRemoveTyping() { var e = document.getElementById('ai-typing'); if(e) e.remove(); }
+    function aiScroll() { var b = document.getElementById('ai-messages'); b.scrollTop = b.scrollHeight; }
+    function aiFormat(t) { return t.replace(/\n/g,'<br>'); }
+    function aiEscape(s) { var d=document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+
+    function aiKey(e) { if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); aiSend(); } }
+    function aiResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,90)+'px'; }
+
+    function aiSend() {
+      var inp = document.getElementById('ai-input');
+      var txt = inp.value.trim();
+      if (!txt || aiTyping) return;
+      inp.value = ''; inp.style.height = 'auto';
+      aiSendUser(txt);
+    }
+
+    function aiSendUser(txt) {
+      aiUserMsg(txt);
+      aiMessages.push({ role: 'user', content: txt });
+      aiTyping = true;
+      aiShowTyping();
+
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'gemini-1.5-flash',
+          max_tokens: 400,
+          system: AI_SYSTEM,
+          messages: aiMessages
+        })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var reply = (data && data.content && data.content[0] && data.content[0].text)
+          ? data.content[0].text
+          : 'Sorry, I could not respond right now. Please WhatsApp us at +91 9133028638!';
+        aiRemoveTyping(); aiTyping = false;
+        aiBotMsg(reply);
+        aiMessages.push({ role: 'assistant', content: reply });
+        var lo = txt.toLowerCase();
+        if (lo.match(/product|heel|flat|shoe|wedge|bridal|buy|chappal|sandal/)) {
+          setTimeout(function(){ aiShowChips(["Heels","Flats","Wedges","Bridal Wear","Shoes"]); }, 400);
+        } else if (lo.match(/deliver|order|ship/)) {
+          setTimeout(function(){ aiShowChips(["How to order?","Delivery charges?","Payment methods?"]); }, 400);
+        } else if (lo.match(/exchange|return|refund/)) {
+          setTimeout(function(){ aiShowChips(["WhatsApp us","Call us"]); }, 400);
+        }
+      })
+      .catch(function(){
+        aiRemoveTyping(); aiTyping = false;
+        aiBotMsg('Oops! Connection issue. Please WhatsApp us at +91 9133028638 or call 9133028638!');
+      });
+    }
+
+    setTimeout(function(){ if(!aiOpen) document.getElementById('ai-notif-dot').style.display='block'; }, 4000);
 
     function dismissLoginPrompt() {
       document.getElementById('loginPrompt').style.display = 'none';
