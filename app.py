@@ -316,56 +316,146 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
         return templates.TemplateResponse("login.html", {"request": request, "error": f"Something went wrong: {str(e)}"})
 
 # ----------------------------
-# AI Chat Proxy (Google Gemini - Free)
+# AI Chat Debug — visit /api/chat-test in browser to diagnose
+# ----------------------------
+@app.get("/api/chat-test")
+async def chat_test():
+    import sys
+    api_key = os.getenv("GEMINI_API_KEY", "").strip()
+
+    if not api_key:
+        return JSONResponse({
+            "step": "FAIL — key missing",
+            "fix": "Add GEMINI_API_KEY in Vercel → Settings → Environment Variables, then redeploy"
+        })
+
+    key_preview = api_key[:8] + "..." + api_key[-4:]
+
+    try:
+        url = (
+            "https://generativelanguage.googleapis.com/v1beta"
+            f"/models/gemini-1.5-flash:generateContent?key={api_key}"
+        )
+        payload = {
+            "contents": [{"role": "user", "parts": [{"text": "Reply with exactly: AI works!"}]}],
+            "generationConfig": {"maxOutputTokens": 10}
+        }
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(url, json=payload)
+
+        result = resp.json()
+
+        if resp.status_code == 200:
+            text = result["candidates"][0]["content"]["parts"][0]["text"]
+            return JSONResponse({
+                "step": "✅ ALL GOOD — Gemini is working!",
+                "key_preview": key_preview,
+                "gemini_reply": text,
+                "python": sys.version
+            })
+        else:
+            err = result.get("error", {})
+            return JSONResponse({
+                "step": "FAIL — Gemini API rejected key",
+                "http_status": resp.status_code,
+                "error_code": err.get("code"),
+                "error_message": err.get("message"),
+                "key_preview": key_preview,
+                "fix": "Your key may be wrong or not enabled for Gemini API. Create a new key at aistudio.google.com/app/apikey"
+            })
+
+    except httpx.TimeoutException:
+        return JSONResponse({
+            "step": "FAIL — Gemini API timed out",
+            "key_preview": key_preview,
+            "fix": "Vercel free plan may be blocking outbound requests. Try upgrading or use a different host."
+        })
+    except Exception as e:
+        return JSONResponse({
+            "step": "FAIL — Exception during request",
+            "key_preview": key_preview,
+            "error": str(e),
+            "fix": "Check Vercel function logs for details"
+        })
+
+
+# ----------------------------
+# AI Chat Proxy (Google Gemini)
 # ----------------------------
 @app.post("/api/chat")
 async def ai_chat(request: Request):
     try:
         data = await request.json()
-        api_key = os.getenv("GEMINI_API_KEY", "")
+        api_key = os.getenv("GEMINI_API_KEY", "").strip()
+
         if not api_key:
-            return JSONResponse({"error": "API key not set"}, status_code=500)
+            print("❌ GEMINI_API_KEY not set — add it in Vercel environment variables")
+            return JSONResponse({
+                "content": [{"type": "text", "text":
+                    "AI chat is not set up yet. Please WhatsApp us at +91 9133028638 — we're happy to help! 😊"}]
+            })
 
         system_prompt = data.get("system", "")
         messages = data.get("messages", [])
 
-        # Build Gemini contents array
         contents = []
         for msg in messages:
             role = "user" if msg["role"] == "user" else "model"
-            contents.append({
-                "role": role,
-                "parts": [{"text": msg["content"]}]
-            })
+            contents.append({"role": role, "parts": [{"text": msg["content"]}]})
 
         gemini_payload = {
             "system_instruction": {"parts": [{"text": system_prompt}]},
             "contents": contents,
-            "generationConfig": {"maxOutputTokens": 400, "temperature": 0.7}
+            "generationConfig": {"maxOutputTokens": 300, "temperature": 0.7}
         }
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        url = (
+            "https://generativelanguage.googleapis.com/v1beta"
+            f"/models/gemini-1.5-flash:generateContent?key={api_key}"
+        )
 
-        async with httpx.AsyncClient() as client:
+        # Use a shorter timeout to stay within Vercel's 10s function limit
+        async with httpx.AsyncClient(timeout=8.0) as client:
             resp = await client.post(
                 url,
                 headers={"content-type": "application/json"},
                 json=gemini_payload,
-                timeout=30.0,
             )
 
         result = resp.json()
-        # Extract text from Gemini response and convert to Claude-like format
+        print(f"Gemini status: {resp.status_code}")
+
+        # API-level error (bad key, quota exceeded, etc.)
+        if resp.status_code != 200:
+            err = result.get("error", {})
+            print(f"❌ Gemini error {resp.status_code}: {err.get('message')} — visit /api/chat-test")
+            return JSONResponse({
+                "content": [{"type": "text", "text":
+                    "Sorry, I couldn't respond right now. Please WhatsApp us at +91 9133028638! 💬"}]
+            })
+
+        # Parse Gemini response
         try:
             text = result["candidates"][0]["content"]["parts"][0]["text"]
-        except Exception:
-            text = "Sorry, I could not respond. Please WhatsApp us at +91 9133028638!"
+        except (KeyError, IndexError):
+            finish = result.get("candidates", [{}])[0].get("finishReason", "unknown")
+            print(f"❌ Gemini empty response, finishReason={finish}, full={result}")
+            text = "I'm not able to answer that. Please WhatsApp us at +91 9133028638 for help! 😊"
 
         return JSONResponse({"content": [{"type": "text", "text": text}]})
 
+    except httpx.TimeoutException:
+        print("❌ Gemini timed out — Vercel's 10s limit may be too short")
+        return JSONResponse({
+            "content": [{"type": "text", "text":
+                "Response timed out. Please WhatsApp us at +91 9133028638! ⚡"}]
+        })
     except Exception as e:
-        print("Chat error:", e)
-        return JSONResponse({"error": str(e)}, status_code=500)
+        print(f"❌ Chat error: {type(e).__name__}: {e}")
+        return JSONResponse({
+            "content": [{"type": "text", "text":
+                "Something went wrong. Please WhatsApp us at +91 9133028638! 😊"}]
+        })
 
 # ----------------------------
 # Required for Vercel
