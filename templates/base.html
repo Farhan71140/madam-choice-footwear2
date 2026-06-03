@@ -371,7 +371,7 @@
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
     </div>
-    <div class="ai-footer">Powered by <b>Gemini AI</b> · Madam Choice Footwear</div>
+    <div class="ai-footer">Powered by <b>Llama 3.3</b> via Groq · Madam Choice Footwear</div>
   </div>
 
   <script>
@@ -801,11 +801,16 @@
       aiTyping = true;
       aiShowTyping();
 
-      fetch('/api/chat', {
+      // ── Cloudflare Worker URL ─────────────────────────────────────────────
+      // Replace the URL below with YOUR Cloudflare Worker URL after deploying.
+      // It looks like: https://madam-choice-ai.YOUR-NAME.workers.dev
+      var WORKER_URL = 'https://soft-sound-d76a.mohdfarhanuddin002.workers.dev';
+
+      fetch(WORKER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gemini-1.5-flash',
+          model: 'llama-3.3-70b-versatile',
           max_tokens: 400,
           system: AI_SYSTEM,
           messages: aiMessages
